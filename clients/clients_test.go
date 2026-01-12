@@ -13,7 +13,7 @@ import (
 func TestGetClients(t *testing.T) {
 	clients := GetClients()
 
-	expectedClients := []string{"claude-desktop", "claude-code", "cursor", "windsurf", "zed", "opencode", "cline", "vscode", "continue", "codex", "gemini", "kilo-code", "zencoder"}
+	expectedClients := []string{"claude-desktop", "claude-code", "cursor", "windsurf", "zed", "opencode", "cline", "vscode", "continue", "codex", "gemini", "kilo-code", "zencoder", "antigravity"}
 
 	for _, name := range expectedClients {
 		if _, ok := clients[name]; !ok {
@@ -51,8 +51,8 @@ func TestGetClient_NotFound(t *testing.T) {
 func TestListClientNames(t *testing.T) {
 	names := ListClientNames()
 
-	if len(names) != 13 {
-		t.Errorf("expected 13 client names, got %d", len(names))
+	if len(names) != 14 {
+		t.Errorf("expected 14 client names, got %d", len(names))
 	}
 
 	// Check that all expected names are present
@@ -70,6 +70,7 @@ func TestListClientNames(t *testing.T) {
 		"gemini":         false,
 		"kilo-code":      false,
 		"zencoder":       false,
+		"antigravity":    false,
 	}
 
 	for _, name := range names {
@@ -167,6 +168,21 @@ func TestClientConfigPath_Windsurf(t *testing.T) {
 	case "linux":
 		expected = filepath.Join(home, ".config", "Windsurf", "User", "globalStorage", "windsurf.mcp", "mcp.json")
 	}
+
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestClientConfigPath_Antigravity(t *testing.T) {
+	client, _ := GetClient("antigravity")
+	path, err := client.ConfigPath()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	home, _ := os.UserHomeDir()
+	expected := filepath.Join(home, ".gemini", "antigravity", "mcp_config.json")
 
 	if path != expected {
 		t.Errorf("expected path %q, got %q", expected, path)
@@ -515,6 +531,7 @@ func TestClientDisplayNames(t *testing.T) {
 		{"gemini", "Gemini CLI"},
 		{"kilo-code", "Kilo Code"},
 		{"zencoder", "ZenCoder"},
+		{"antigravity", "Antigravity (Google)"},
 	}
 
 	for _, tc := range testCases {
@@ -615,6 +632,7 @@ func TestClientSupportsLocal(t *testing.T) {
 		{"codex", false},
 		{"gemini", true},
 		{"kilo-code", true},
+		{"antigravity", true},
 		{"zencoder", false},
 	}
 
