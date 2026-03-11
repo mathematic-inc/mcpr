@@ -1,6 +1,6 @@
 package main
 
-import "github.com/jrandolf/mcpr/cmd"
+import "github.com/mathematic-inc/mcpr/cmd"
 
 func main() {
 	cmd.Execute()

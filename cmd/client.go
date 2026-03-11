@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jrandolf/mcpr/clients"
-	"github.com/jrandolf/mcpr/config"
+	"github.com/mathematic-inc/mcpr/clients"
+	"github.com/mathematic-inc/mcpr/config"
 
 	"github.com/spf13/cobra"
 )
