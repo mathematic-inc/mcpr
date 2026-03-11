@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/jrandolf/mcpr/config"
+	"github.com/mathematic-inc/mcpr/config"
 )
 
 func TestGetClients(t *testing.T) {

@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jrandolf/mcpr/config"
+	"github.com/mathematic-inc/mcpr/config"
 
 	"github.com/spf13/cobra"
 )

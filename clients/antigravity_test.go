@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jrandolf/mcpr/config"
+	"github.com/mathematic-inc/mcpr/config"
 )
 
 func TestSyncToAntigravityConfig(t *testing.T) {

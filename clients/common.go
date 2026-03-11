@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jrandolf/mcpr/config"
+	"github.com/mathematic-inc/mcpr/config"
 )
 
 // Client represents an MCP client that can have servers installed

@@ -18,13 +18,13 @@ MCPR provides a centralized way to configure and synchronize MCP server configur
 ## Installation
 
 ```bash
-go install github.com/jrandolf/mcpr@latest
+go install github.com/mathematic-inc/mcpr@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/jrandolf/mcpr.git
+git clone https://github.com/mathematic-inc/mcpr.git
 cd mcpr
 go build -o mcpr .
 ```
@@ -60,10 +60,10 @@ Add a stdio-based MCP server that communicates via stdin/stdout.
 
 ```bash
 # Basic usage
-mcpr add stdio npx -y @modelcontextprotocol/server-filesystem /home/jrandolf
+mcpr add stdio npx -y @modelcontextprotocol/server-filesystem /home/user
 
 # With custom name
-mcpr add stdio --name filesystem npx -y @modelcontextprotocol/server-filesystem /home/jrandolf
+mcpr add stdio --name filesystem npx -y @modelcontextprotocol/server-filesystem /home/user
 
 # With environment variables
 mcpr add stdio --env API_KEY=secret --env DEBUG=true npx my-server
@@ -192,7 +192,7 @@ mcpr list -c
       "name": "filesystem",
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/jrandolf"],
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/user"],
       "env": {}
     },
     {
@@ -298,4 +298,6 @@ MCPR reads each client's existing configuration and updates only the MCP server 
 
 ## License
 
-MIT
+Apache-2.0
+
+> This project is free and open-source work by a 501(c)(3) non-profit. If you find it useful, please consider [donating](https://github.com/sponsors/mathematic-inc).
