@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/mathematic-inc/mcpr/config"
 )
@@ -12,6 +13,7 @@ import (
 // Path functions as variables for testing
 var (
 	getCodexConfigPath = getCodexConfigPathImpl
+	getCodexLocalPath  = getCodexLocalPathImpl
 )
 
 func init() {
@@ -19,23 +21,90 @@ func init() {
 		Name:          "codex",
 		DisplayName:   "Codex (OpenAI)",
 		GlobalPath:    func() (string, error) { return getCodexConfigPath() },
-		LocalPath:     nil,
-		SupportsLocal: false,
+		LocalPath:     func() (string, error) { return getCodexLocalPath() },
+		SupportsLocal: true,
 		SyncFunc:      syncToCodex,
 	})
 }
 
 func getCodexConfigPathImpl() (string, error) {
-	// Check CODEX_HOME env var first
-	codexHome := os.Getenv("CODEX_HOME")
-	if codexHome == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		codexHome = filepath.Join(home, ".codex")
-	}
+	codexHome := codexHomeDir()
 	return filepath.Join(codexHome, "config.toml"), nil
+}
+
+func getCodexLocalPathImpl() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	if err := validateCodexProjectTrust(cwd); err != nil {
+		return "", err
+	}
+	return filepath.Join(cwd, ".codex", "config.toml"), nil
+}
+
+func codexHomeDir() string {
+	if codexHome := os.Getenv("CODEX_HOME"); codexHome != "" {
+		return codexHome
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ".codex"
+	}
+	return filepath.Join(home, ".codex")
+}
+
+func validateCodexProjectTrust(projectPath string) error {
+	globalConfigPath := filepath.Join(codexHomeDir(), "config.toml")
+	trustLevel, err := readCodexProjectTrustLevel(globalConfigPath, projectPath)
+	if err != nil {
+		return err
+	}
+	if trustLevel != "trusted" {
+		return fmt.Errorf(
+			"project %q is not trusted in Codex\n\nTo enable local configuration, add the following to %s:\n\n[projects.%q]\ntrust_level = \"trusted\"",
+			projectPath, globalConfigPath, projectPath,
+		)
+	}
+	return nil
+}
+
+// readCodexProjectTrustLevel parses configPath for the trust_level of the given project.
+// Returns "" if the project section or key is not found.
+func readCodexProjectTrustLevel(configPath, projectPath string) (string, error) {
+	data, err := os.ReadFile(configPath)
+	if os.IsNotExist(err) {
+		return "", nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to read Codex config: %w", err)
+	}
+
+	// Build the expected section header, e.g. [projects."/home/user/project"]
+	sectionHeader := fmt.Sprintf(`[projects.%q]`, projectPath)
+
+	inSection := false
+	for _, line := range strings.Split(string(data), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == sectionHeader {
+			inSection = true
+			continue
+		}
+		if inSection {
+			if strings.HasPrefix(trimmed, "[") {
+				break
+			}
+			if strings.HasPrefix(trimmed, "trust_level") {
+				parts := strings.SplitN(trimmed, "=", 2)
+				if len(parts) == 2 {
+					val := strings.TrimSpace(parts[1])
+					val = strings.Trim(val, `"'`)
+					return val, nil
+				}
+			}
+		}
+	}
+	return "", nil
 }
 
 func syncToCodex(servers []config.MCPServer, path string) error {

@@ -2,6 +2,7 @@ package clients
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -629,7 +630,7 @@ func TestClientSupportsLocal(t *testing.T) {
 		{"cline", false},
 		{"vscode", true},
 		{"continue", false},
-		{"codex", false},
+		{"codex", true},
 		{"gemini", true},
 		{"kilo-code", true},
 		{"antigravity", true},
@@ -1622,6 +1623,199 @@ func TestSyncToOpenCode_PreservesOtherSettings(t *testing.T) {
 
 	if _, ok := mcp["new-server"]; !ok {
 		t.Error("expected 'new-server' to be present")
+	}
+}
+
+func TestClaudeCodeConfigPath_WithEnvVar(t *testing.T) {
+	customDir := t.TempDir()
+	t.Setenv("CLAUDE_CONFIG_DIR", customDir)
+
+	path, err := getClaudeCodeConfigPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := filepath.Join(customDir, "claude.json")
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestClaudeCodeConfigPath_WithoutEnvVar(t *testing.T) {
+	t.Setenv("CLAUDE_CONFIG_DIR", "")
+
+	home, _ := os.UserHomeDir()
+	expected := filepath.Join(home, ".claude.json")
+
+	path, err := getClaudeCodeConfigPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestVSCodeConfigPath_WithXDGEnvVar(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("XDG_CONFIG_HOME only applies on Linux")
+	}
+
+	customDir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", customDir)
+
+	path, err := getVSCodeConfigPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := filepath.Join(customDir, "Code", "User", "settings.json")
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestVSCodeConfigPath_WithoutXDGEnvVar(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("XDG_CONFIG_HOME only applies on Linux")
+	}
+
+	t.Setenv("XDG_CONFIG_HOME", "")
+
+	home, _ := os.UserHomeDir()
+	expected := filepath.Join(home, ".config", "Code", "User", "settings.json")
+
+	path, err := getVSCodeConfigPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestReadCodexProjectTrustLevel_Trusted(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+
+	projectPath := "/home/user/myproject"
+	content := fmt.Sprintf("[projects.%q]\ntrust_level = \"trusted\"\n", projectPath)
+	os.WriteFile(configPath, []byte(content), 0o644)
+
+	level, err := readCodexProjectTrustLevel(configPath, projectPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if level != "trusted" {
+		t.Errorf("expected trust level %q, got %q", "trusted", level)
+	}
+}
+
+func TestReadCodexProjectTrustLevel_Untrusted(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+
+	projectPath := "/home/user/myproject"
+	content := fmt.Sprintf("[projects.%q]\ntrust_level = \"untrusted\"\n", projectPath)
+	os.WriteFile(configPath, []byte(content), 0o644)
+
+	level, err := readCodexProjectTrustLevel(configPath, projectPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if level != "untrusted" {
+		t.Errorf("expected trust level %q, got %q", "untrusted", level)
+	}
+}
+
+func TestReadCodexProjectTrustLevel_MissingProject(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+
+	content := "[projects.\"/other/project\"]\ntrust_level = \"trusted\"\n"
+	os.WriteFile(configPath, []byte(content), 0o644)
+
+	level, err := readCodexProjectTrustLevel(configPath, "/home/user/myproject")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if level != "" {
+		t.Errorf("expected empty trust level, got %q", level)
+	}
+}
+
+func TestReadCodexProjectTrustLevel_NoConfigFile(t *testing.T) {
+	level, err := readCodexProjectTrustLevel("/nonexistent/path/config.toml", "/home/user/project")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if level != "" {
+		t.Errorf("expected empty trust level for missing config, got %q", level)
+	}
+}
+
+func TestReadCodexProjectTrustLevel_MultipleProjects(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.toml")
+
+	projectPath := "/home/user/myproject"
+	content := fmt.Sprintf(
+		"[projects.\"/other/project\"]\ntrust_level = \"trusted\"\n\n[projects.%q]\ntrust_level = \"trusted\"\n",
+		projectPath,
+	)
+	os.WriteFile(configPath, []byte(content), 0o644)
+
+	level, err := readCodexProjectTrustLevel(configPath, projectPath)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if level != "trusted" {
+		t.Errorf("expected trust level %q, got %q", "trusted", level)
+	}
+}
+
+func TestCodexLocalPath_Trusted(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("CODEX_HOME", tempDir)
+
+	cwd, _ := os.Getwd()
+	content := fmt.Sprintf("[projects.%q]\ntrust_level = \"trusted\"\n", cwd)
+	os.WriteFile(filepath.Join(tempDir, "config.toml"), []byte(content), 0o644)
+
+	path, err := getCodexLocalPathImpl()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	expected := filepath.Join(cwd, ".codex", "config.toml")
+	if path != expected {
+		t.Errorf("expected path %q, got %q", expected, path)
+	}
+}
+
+func TestCodexLocalPath_Untrusted(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("CODEX_HOME", tempDir)
+
+	// Write config without trust for the current directory
+	os.WriteFile(filepath.Join(tempDir, "config.toml"), []byte(""), 0o644)
+
+	_, err := getCodexLocalPathImpl()
+	if err == nil {
+		t.Error("expected error for untrusted project, got nil")
+	}
+}
+
+func TestCodexLocalPath_NoConfigFile(t *testing.T) {
+	tempDir := t.TempDir()
+	t.Setenv("CODEX_HOME", tempDir)
+	// No config.toml written — trust level is absent
+
+	_, err := getCodexLocalPathImpl()
+	if err == nil {
+		t.Error("expected error when no Codex config exists (project not trusted), got nil")
 	}
 }
 

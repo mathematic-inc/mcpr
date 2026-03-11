@@ -60,6 +60,10 @@ func getClaudeDesktopConfigPathImpl() (string, error) {
 }
 
 func getClaudeCodeConfigPathImpl() (string, error) {
+	if claudeConfigDir := os.Getenv("CLAUDE_CONFIG_DIR"); claudeConfigDir != "" {
+		return filepath.Join(claudeConfigDir, "claude.json"), nil
+	}
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

@@ -42,7 +42,11 @@ func getVSCodeConfigPathImpl() (string, error) {
 		}
 		return filepath.Join(appData, "Code", "User", "settings.json"), nil
 	case "linux":
-		return filepath.Join(home, ".config", "Code", "User", "settings.json"), nil
+		configDir := os.Getenv("XDG_CONFIG_HOME")
+		if configDir == "" {
+			configDir = filepath.Join(home, ".config")
+		}
+		return filepath.Join(configDir, "Code", "User", "settings.json"), nil
 	default:
 		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
