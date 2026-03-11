@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/mathematic-inc/mcpr/compare/v0.2.0...v0.2.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* Make release notes workflow resilient when Claude Code App is not installed ([#5](https://github.com/mathematic-inc/mcpr/issues/5)) ([04c4161](https://github.com/mathematic-inc/mcpr/commit/04c416199ef3127a479dc1f7793dfab9eafbb361))
+
 ## [0.2.0](https://github.com/mathematic-inc/mcpr/compare/v0.1.0...v0.2.0) (2026-03-11)
 
 
