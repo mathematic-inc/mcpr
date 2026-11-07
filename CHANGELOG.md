@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.5](https://github.com/mathematic-inc/mcpr/compare/v0.2.4...v0.2.5) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** Update dependencies across the stack ([#33](https://github.com/mathematic-inc/mcpr/issues/33)) ([ef6daf4](https://github.com/mathematic-inc/mcpr/commit/ef6daf4c9d6b261e9f70f380ee262bceadd23917))
+* Replace deprecated APIs and tooling ([#35](https://github.com/mathematic-inc/mcpr/issues/35)) ([0e58b0f](https://github.com/mathematic-inc/mcpr/commit/0e58b0fcfe6c91db833e9a043906df002b688703))
+
 ## [0.2.4](https://github.com/mathematic-inc/mcpr/compare/v0.2.3...v0.2.4) (2026-09-05)
 
 
