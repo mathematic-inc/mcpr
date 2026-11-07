@@ -207,6 +207,7 @@ local checks = new Mapping<String, Step> {
   ["cargo-deny"] = (Builtins.cargo_deny) {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml", "**/Cargo.toml")
     workspace_indicator = null
+    dir = "{{root}}"
     check = "cargo-deny --locked --workspace check"
     profiles = slow
   }
