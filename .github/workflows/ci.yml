@@ -32,6 +32,5 @@ jobs:
         uses: mathematic-inc/toolconfig-action@1baf7b021e8bf6f0e20737753c13af0fc93c8570 # v2026.11.0
       - name: Verify pinned Go version
         run: test "$(go env GOVERSION)" = "go$(awk '/^go / {print $2}' go.mod)"
-      # The action ran ToolConfig.
       - name: Run checks
         run: hk check --all --slow --skip-step toolconfig
