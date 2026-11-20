@@ -9,42 +9,41 @@ concurrency:
   group: release-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  build-artifacts:
-    name: Build and Test
+  build-and-test:
+    name: Build and test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Go
+      - name: Install Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           cache: false
           go-version-file: go.mod
-      - name: Build
+      - name: Build packages
         run: go build ./...
-      - name: Test
+      - name: Run tests
         run: go test ./...
 
-  create-release:
-    name: Publish GitHub Release
+  create-github-release:
+    name: Create GitHub release
     needs:
-      - build-artifacts
+      - build-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: release
     permissions:
       contents: write
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
