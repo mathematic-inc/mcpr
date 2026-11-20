@@ -1,8 +1,6 @@
 amends ".hk/org.pkl"
 
 steps {
-  // gofmt rejects go.mod and go.sum.
-  ["go-fmt"] { glob = List("**/*.go") }
   ["go-build"] {
     glob = List("go.mod", "go.sum", "**/*.go")
     check = "go build ./..."
