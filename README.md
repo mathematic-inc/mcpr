@@ -1,16 +1,23 @@
 # MCPR - MCP Registry
 
-A CLI tool for managing Model Context Protocol (MCP) servers across multiple AI-powered code editors and development tools.
+A CLI tool for managing Model Context Protocol (MCP) servers across multiple
+AI-powered code editors and development tools.
 
 ## Overview
 
-MCPR provides a centralized way to configure and synchronize MCP server configurations to various client applications that support the MCP standard. Instead of manually editing configuration files for each tool, define your MCP servers once and sync them everywhere.
+MCPR provides a centralized way to configure and synchronize MCP server
+configurations to various client applications that support the MCP standard.
+Instead of manually editing configuration files for each tool, define your MCP
+servers once and sync them everywhere.
 
 ## Features
 
-- **Centralized Configuration** - Define MCP servers in one place, sync to all your tools
-- **Multi-Client Support** - Works with Claude Desktop, Cursor, VS Code, Windsurf, Zed, and more
-- **Stdio & HTTP Servers** - Support for both command-line and HTTP/SSE-based MCP servers
+- **Centralized Configuration** - Define MCP servers in one place, sync to all
+  your tools
+- **Multi-Client Support** - Works with Claude Desktop, Cursor, VS Code,
+  Windsurf, Zed, and more
+- **Stdio & HTTP Servers** - Support for both command-line and HTTP/SSE-based
+  MCP servers
 - **Project-Local Configs** - Global or per-project server configurations
 - **Shell Completion** - Tab completion for commands and server names
 - **Atomic Syncing** - Automatic sync to all clients after configuration changes
@@ -63,7 +70,8 @@ Add a stdio-based MCP server that communicates through standard input and output
 mcpr add stdio npx -y @modelcontextprotocol/server-filesystem /home/user
 
 # With custom name
-mcpr add stdio --name filesystem npx -y @modelcontextprotocol/server-filesystem /home/user
+mcpr add stdio --name filesystem \
+  npx -y @modelcontextprotocol/server-filesystem /home/user
 
 # With environment variables
 mcpr add stdio --env API_KEY=secret --env DEBUG=true npx my-server
@@ -263,7 +271,8 @@ HTTP servers communicate via HTTP/SSE:
 
 ```bash
 # Add common MCP servers
-mcpr add stdio --name filesystem npx -y @modelcontextprotocol/server-filesystem ~/projects
+mcpr add stdio --name filesystem \
+  npx -y @modelcontextprotocol/server-filesystem ~/projects
 mcpr add stdio --name git npx -y @modelcontextprotocol/server-git
 mcpr add stdio --name github npx -y @modelcontextprotocol/server-github --env GITHUB_TOKEN=ghp_xxx
 
@@ -299,13 +308,20 @@ mcpr client sync cursor --servers filesystem,git
 2. **Sync clients** to copy server configs to each tool's native format
 3. **Auto-resync** happens when you add or remove servers
 
-MCPR reads each client's existing configuration and updates only the MCP server sections, preserving all other settings.
+MCPR reads each client's existing configuration and updates only the MCP server
+sections, preserving all other settings.
 
 ## Contributing
 
-AI agents maintain this repository. Start with a [GitHub Discussion](https://github.com/mathematic-inc/mcpr/discussions/new) and wait for a maintainer to review your proposal. If we accept it, a Mathematic maintainer or agent will open the pull request. GitHub restricts pull request creation to Mathematic maintainers and repository collaborators with write, maintain, or admin access, plus authorized maintenance agents.
+AI agents maintain this repository. Start with a
+[GitHub Discussion](https://github.com/mathematic-inc/mcpr/discussions/new) and
+wait for a maintainer to review your proposal. If we accept it, a Mathematic
+maintainer or agent will open the pull request. GitHub restricts pull request
+creation to Mathematic maintainers and repository collaborators with write,
+maintain, or admin access, plus authorized maintenance agents.
 
-When Mathematic implements a proposal, the implementation pull request will link to the Discussion and credit its original author.
+When Mathematic implements a proposal, the implementation pull request will link
+to the Discussion and credit its original author.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process.
 
@@ -313,4 +329,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process.
 
 Apache-2.0
 
-> This project is free and open-source work by a 501(c)(3) non-profit. If you find it useful, please consider [donating](https://github.com/sponsors/mathematic-inc).
+> This project is free and open-source work by a 501(c)(3) non-profit. If you
+> find it useful, please consider
+> [donating](https://github.com/sponsors/mathematic-inc).
